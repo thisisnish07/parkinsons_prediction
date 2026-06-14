@@ -1,0 +1,13 @@
+.env
+.env.*
+__pycache__/
+*.py[cod]
+*.pkl
+*.log
+logs/
+instance/
+parkinsons.db
+*.sqlite3
+.venv/
+.venv*/
+.DS_Store

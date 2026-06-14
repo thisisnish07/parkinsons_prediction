@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NeuroPredict AI | Clinical Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f6f9fc;
+      --bg-accent: #e7f3ff;
+      --card: #ffffff;
+      --text: #0f1f2d;
+      --muted: #4f6375;
+      --primary: #1b7cff;
+      --primary-dark: #0f5bd6;
+      --accent: #14b8a6;
+      --border: rgba(15, 31, 45, 0.08);
+      --shadow: 0 24px 60px rgba(15, 31, 45, 0.08);
+      --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: "Space Grotesk", "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--text);
+      background: radial-gradient(circle at top, #ffffff 0%, var(--bg) 35%, var(--bg-accent) 100%);
+      min-height: 100vh;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .page {
+      display: flex;
+      flex-direction: column;
+      gap: 96px;
+      padding: 32px 7vw 64px;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      box-shadow: 0 0 0 6px rgba(27, 124, 255, 0.12);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .nav-links a.active {
+      color: var(--text);
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 4px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      align-items: center;
+      gap: 48px;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.6rem, 4vw, 3.8rem);
+      margin: 0 0 16px;
+      letter-spacing: -0.03em;
+    }
+
+    .hero p {
+      font-size: 1.05rem;
+      color: var(--muted);
+      line-height: 1.7;
+      margin: 0 0 28px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .button {
+      border: none;
+      border-radius: 999px;
+      padding: 12px 22px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .button.primary {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #fff;
+      box-shadow: 0 16px 30px rgba(27, 124, 255, 0.25);
+    }
+
+    .button.secondary {
+      background: #fff;
+      color: var(--primary-dark);
+      border: 1px solid rgba(27, 124, 255, 0.2);
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+    }
+
+    .hero-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero-card h3 {
+      margin: 0 0 12px;
+      font-size: 1.1rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: #e7f2ff;
+      color: var(--primary-dark);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 18px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .stat-card h4 {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .mono {
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h3 { margin: 0 0 10px; }
+
+    .footer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: space-between;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+      font-size: 0.9rem;
+    }
+
+    .fade-in {
+      animation: fadeInUp 0.8s ease both;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <nav class="nav">
+      <div class="brand">
+        <span class="brand-dot"></span>
+        NeuroPredict AI
+      </div>
+      <div class="nav-links">
+        <a class="active" href="/">Landing</a>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/prediction">Prediction</a>
+      </div>
+    </nav>
+
+    <section class="hero fade-in">
+      <div>
+        <span class="badge" id="apiBadge">API: Checking...</span>
+        <h1>Clinical-grade Parkinson's risk insight, delivered in seconds.</h1>
+        <p>
+          NeuroPredict AI connects validated machine learning models with intuitive clinical workflows.
+          Track model performance, run predictions, and monitor patient risk from a single portal.
+        </p>
+        <div class="hero-actions">
+          <a class="button primary" href="/prediction">Start Prediction</a>
+          <a class="button secondary" href="/dashboard">View Dashboard</a>
+        </div>
+      </div>
+      <div class="hero-card">
+        <h3>Model Snapshot</h3>
+        <p class="mono" id="modelVersion">Version: --</p>
+        <div class="stats">
+          <div>
+            <h4>Accuracy</h4>
+            <p class="stat-value" id="statAccuracy">--</p>
+          </div>
+          <div>
+            <h4>Precision</h4>
+            <p class="stat-value" id="statPrecision">--</p>
+          </div>
+          <div>
+            <h4>Recall</h4>
+            <p class="stat-value" id="statRecall">--</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h3>Real-time risk scoring</h3>
+        <p>Instantly compute patient risk tiers with confidence metrics and audit-ready logs.</p>
+      </div>
+      <div class="card">
+        <h3>Secure access control</h3>
+        <p>JWT-based authentication keeps predictions and history scoped to each clinician.</p>
+      </div>
+      <div class="card">
+        <h3>Model observability</h3>
+        <p>Track accuracy, precision, and recall straight from the deployed model metadata.</p>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span>NeuroPredict AI</span>
+      <span>Clinical Intelligence Systems</span>
+      <span class="mono">API: /api/*</span>
+    </footer>
+  </div>
+
+  <script>
+    const apiBadge = document.getElementById("apiBadge");
+    const statAccuracy = document.getElementById("statAccuracy");
+    const statPrecision = document.getElementById("statPrecision");
+    const statRecall = document.getElementById("statRecall");
+    const modelVersion = document.getElementById("modelVersion");
+
+    function updateBadge(text, ok) {
+      apiBadge.textContent = text;
+      apiBadge.style.background = ok ? "#e7f6f2" : "#ffe9e9";
+      apiBadge.style.color = ok ? "#0f766e" : "#b42318";
+    }
+
+    async function checkApi() {
+      try {
+        const response = await fetch(`${window.location.origin}/api/health`);
+        if (!response.ok) throw new Error("health failed");
+        updateBadge("API: Online", true);
+      } catch (err) {
+        updateBadge("API: Offline", false);
+      }
+    }
+
+    function formatPercent(value) {
+      if (Number.isNaN(value)) return "--";
+      return `${Math.round(value * 100)}%`;
+    }
+
+    async function loadModelInfo() {
+      try {
+        const response = await fetch(`${window.location.origin}/api/model-info`);
+        if (!response.ok) throw new Error("model info failed");
+        const result = await response.json();
+        const metrics = result.data?.metrics || {};
+        statAccuracy.textContent = formatPercent(metrics.accuracy || 0);
+        statPrecision.textContent = formatPercent(metrics.precision || 0);
+        statRecall.textContent = formatPercent(metrics.recall || 0);
+        modelVersion.textContent = `Version: ${result.data?.model_version || "--"}`;
+      } catch (err) {
+        statAccuracy.textContent = "--";
+        statPrecision.textContent = "--";
+        statRecall.textContent = "--";
+        modelVersion.textContent = "Version: --";
+      }
+    }
+
+    checkApi();
+    loadModelInfo();
+  </script>
+</body>
+</html>

@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NeuroPredict AI | Prediction</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f6f9fc;
+      --card: #ffffff;
+      --text: #0f1f2d;
+      --muted: #4f6375;
+      --primary: #1b7cff;
+      --accent: #14b8a6;
+      --border: rgba(15, 31, 45, 0.08);
+      --shadow: 0 20px 50px rgba(15, 31, 45, 0.08);
+      --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: "Space Grotesk", "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      color: var(--text);
+      background: linear-gradient(180deg, #ffffff 0%, #f3f7fb 50%, #eaf1ff 100%);
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .page {
+      padding: 28px 7vw 64px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .nav-links a.active {
+      color: var(--text);
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 4px;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .title h1 { margin: 0; font-size: clamp(2rem, 3vw, 2.6rem); }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: #e7f2ff;
+      color: #0f5bd6;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    input {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 0.95rem;
+      font-family: var(--sans);
+      outline: none;
+    }
+
+    .button {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .button.secondary {
+      background: #fff;
+      color: var(--primary);
+      border: 1px solid rgba(27, 124, 255, 0.2);
+    }
+
+    .button.ghost {
+      background: #f2f5f9;
+      color: var(--muted);
+    }
+
+    .form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .results {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .progress {
+      height: 8px;
+      background: #e5edf7;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      width: 0%;
+      transition: width 0.6s ease;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .pill.low { background: #e7f6f2; color: #0f766e; }
+    .pill.medium { background: #fff7e8; color: #b25f00; }
+    .pill.high { background: #ffe9e9; color: #b42318; }
+
+    .mono { font-family: var(--mono); color: var(--muted); font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <nav class="nav">
+      <strong>NeuroPredict AI</strong>
+      <div class="nav-links">
+        <a href="/">Landing</a>
+        <a href="/dashboard">Dashboard</a>
+        <a class="active" href="/prediction">Prediction</a>
+      </div>
+    </nav>
+
+    <section class="panel">
+      <div class="title">
+        <h1>Prediction Workflow</h1>
+        <span class="badge" id="apiStatus">API: Checking...</span>
+      </div>
+      <p class="mono">Authenticate, enter patient voice metrics, and generate a risk profile.</p>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <h3>Authentication</h3>
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+          <div class="field">
+            <label>Email</label>
+            <input id="authEmail" type="email" placeholder="clinician@hospital.org" />
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input id="authPassword" type="password" placeholder="••••••••" />
+          </div>
+        </div>
+        <div class="form-actions" style="margin-top: 12px;">
+          <button class="button" id="loginBtn" type="button">Login</button>
+          <button class="button secondary" id="registerBtn" type="button">Register</button>
+          <button class="button ghost" id="logoutBtn" type="button">Logout</button>
+          <span class="mono" id="authMessage">Not authenticated</span>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Quick Sample</h3>
+        <p class="mono">Choose from 10 realistic patient samples (with varied confidence ranges).</p>
+        <div class="field" style="margin-top: 12px;">
+          <label for="sampleSelect">Sample dataset</label>
+          <input id="sampleSelect" list="sampleOptions" placeholder="Select a sample" />
+          <datalist id="sampleOptions"></datalist>
+        </div>
+        <div class="form-actions" style="margin-top: 12px;">
+          <button class="button secondary" id="sampleBtn" type="button">Load Sample</button>
+          <span class="mono" id="sampleHint">Expected confidence ~ --</span>
+        </div>
+        <div class="mono" id="sampleMeta" style="margin-top: 12px;">Profile: --</div>
+        <div class="mono" style="margin-top: 16px;">Token stored in browser localStorage.</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h3>Patient Parameters</h3>
+      <form id="predictionForm" class="grid"></form>
+      <div class="form-actions" style="margin-top: 16px;">
+        <button class="button" id="analyzeBtn" type="submit" form="predictionForm">Run Prediction</button>
+        <span class="mono" id="formStatus">Awaiting input.</span>
+      </div>
+    </section>
+
+    <section class="panel results">
+      <h3>Prediction Result</h3>
+      <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+        <div>
+          <div class="mono">Confidence</div>
+          <div style="font-size: 2rem; font-weight: 700;" id="confidenceValue">--</div>
+          <div class="progress"><div class="progress-bar" id="confidenceBar"></div></div>
+        </div>
+        <div>
+          <div class="mono">Risk Level</div>
+          <div class="pill low" id="riskPill">--</div>
+          <div class="mono" id="riskMessage" style="margin-top: 10px;">Run a prediction to see clinical context.</div>
+        </div>
+        <div>
+          <div class="mono">Prediction</div>
+          <div style="font-size: 1.2rem; font-weight: 600;" id="predictionLabel">--</div>
+          <div class="mono" style="margin-top: 10px;">Model version</div>
+          <div class="mono" id="modelVersion">--</div>
+          <div class="mono" style="margin-top: 10px;">Timestamp</div>
+          <div class="mono" id="predictionTime">--</div>
+          <div class="mono" style="margin-top: 10px;">Clinical note</div>
+          <div class="mono" id="clinicalNote">--</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const apiStatus = document.getElementById("apiStatus");
+    const authMessage = document.getElementById("authMessage");
+    const formStatus = document.getElementById("formStatus");
+    const predictionForm = document.getElementById("predictionForm");
+    const confidenceValue = document.getElementById("confidenceValue");
+    const confidenceBar = document.getElementById("confidenceBar");
+    const riskPill = document.getElementById("riskPill");
+    const riskMessage = document.getElementById("riskMessage");
+    const predictionLabel = document.getElementById("predictionLabel");
+    const modelVersion = document.getElementById("modelVersion");
+    const predictionTime = document.getElementById("predictionTime");
+    const clinicalNote = document.getElementById("clinicalNote");
+    const sampleSelect = document.getElementById("sampleSelect");
+    const sampleOptions = document.getElementById("sampleOptions");
+    const sampleHint = document.getElementById("sampleHint");
+    const sampleMeta = document.getElementById("sampleMeta");
+
+    const featureList = [
+      "MDVP:Fo(Hz)", "MDVP:Fhi(Hz)", "MDVP:Flo(Hz)", "MDVP:Jitter(%)", "MDVP:Jitter(Abs)",
+      "MDVP:RAP", "MDVP:PPQ", "Jitter:DDP", "MDVP:Shimmer", "MDVP:Shimmer(dB)",
+      "Shimmer:APQ3", "Shimmer:APQ5", "MDVP:APQ", "Shimmer:DDA", "NHR", "HNR",
+      "RPDE", "DFA", "spread1", "spread2", "D2", "PPE"
+    ];
+
+    const samplePayloads = [
+      {
+        name: "Sample 1 (61%)",
+        confidence: 0.6051499247550964,
+        profile: "ID NP-1021 · 52F · Baseline screening",
+        payload: {
+          "MDVP:Fo(Hz)": 116.286,
+          "MDVP:Fhi(Hz)": 177.291,
+          "MDVP:Flo(Hz)": 96.983,
+          "MDVP:Jitter(%)": 0.00314,
+          "MDVP:Jitter(Abs)": 0.00003,
+          "MDVP:RAP": 0.00134,
+          "MDVP:PPQ": 0.00192,
+          "Jitter:DDP": 0.00403,
+          "MDVP:Shimmer": 0.01564,
+          "MDVP:Shimmer(dB)": 0.136,
+          "Shimmer:APQ3": 0.00667,
+          "Shimmer:APQ5": 0.0099,
+          "MDVP:APQ": 0.01691,
+          "Shimmer:DDA": 0.02001,
+          "NHR": 0.00737,
+          "HNR": 24.199,
+          "RPDE": 0.598515,
+          "DFA": 0.654331,
+          "spread1": -5.592584,
+          "spread2": 0.133917,
+          "D2": 2.058658,
+          "PPE": 0.214346
+        }
+      },
+      {
+        name: "Sample 2 (80%)",
+        confidence: 0.7983455657958984,
+        profile: "ID NP-1088 · 63M · Follow-up visit",
+        payload: {
+          "MDVP:Fo(Hz)": 120.078,
+          "MDVP:Fhi(Hz)": 126.632,
+          "MDVP:Flo(Hz)": 105.667,
+          "MDVP:Jitter(%)": 0.0027,
+          "MDVP:Jitter(Abs)": 0.00002,
+          "MDVP:RAP": 0.00116,
+          "MDVP:PPQ": 0.00135,
+          "Jitter:DDP": 0.00349,
+          "MDVP:Shimmer": 0.01022,
+          "MDVP:Shimmer(dB)": 0.09,
+          "Shimmer:APQ3": 0.00476,
+          "Shimmer:APQ5": 0.00588,
+          "MDVP:APQ": 0.00903,
+          "Shimmer:DDA": 0.01428,
+          "NHR": 0.00487,
+          "HNR": 26.369,
+          "RPDE": 0.491345,
+          "DFA": 0.718839,
+          "spread1": -5.892061,
+          "spread2": 0.195976,
+          "D2": 2.108873,
+          "PPE": 0.183572
+        }
+      },
+      {
+        name: "Sample 3 (84%)",
+        confidence: 0.8389426469802856,
+        profile: "ID NP-1104 · 58F · New symptoms",
+        payload: {
+          "MDVP:Fo(Hz)": 197.569,
+          "MDVP:Fhi(Hz)": 217.627,
+          "MDVP:Flo(Hz)": 90.794,
+          "MDVP:Jitter(%)": 0.00803,
+          "MDVP:Jitter(Abs)": 0.00004,
+          "MDVP:RAP": 0.0049,
+          "MDVP:PPQ": 0.00448,
+          "Jitter:DDP": 0.0147,
+          "MDVP:Shimmer": 0.02177,
+          "MDVP:Shimmer(dB)": 0.189,
+          "Shimmer:APQ3": 0.01279,
+          "Shimmer:APQ5": 0.01272,
+          "MDVP:APQ": 0.01439,
+          "Shimmer:DDA": 0.03836,
+          "NHR": 0.01337,
+          "HNR": 19.269,
+          "RPDE": 0.372222,
+          "DFA": 0.725216,
+          "spread1": -5.736781,
+          "spread2": 0.164529,
+          "D2": 2.88245,
+          "PPE": 0.202879
+        }
+      },
+      {
+        name: "Sample 4 (84%)",
+        confidence: 0.8424271941184998,
+        profile: "ID NP-1129 · 69M · Voice tremor",
+        payload: {
+          "MDVP:Fo(Hz)": 110.568,
+          "MDVP:Fhi(Hz)": 125.394,
+          "MDVP:Flo(Hz)": 106.821,
+          "MDVP:Jitter(%)": 0.00462,
+          "MDVP:Jitter(Abs)": 0.00004,
+          "MDVP:RAP": 0.00226,
+          "MDVP:PPQ": 0.0028,
+          "Jitter:DDP": 0.00677,
+          "MDVP:Shimmer": 0.02199,
+          "MDVP:Shimmer(dB)": 0.197,
+          "Shimmer:APQ3": 0.01284,
+          "Shimmer:APQ5": 0.01199,
+          "MDVP:APQ": 0.01636,
+          "Shimmer:DDA": 0.03852,
+          "NHR": 0.0042,
+          "HNR": 25.82,
+          "RPDE": 0.429484,
+          "DFA": 0.81634,
+          "spread1": -5.391029,
+          "spread2": 0.250572,
+          "D2": 1.777901,
+          "PPE": 0.232744
+        }
+      },
+      {
+        name: "Sample 5 (85%)",
+        confidence: 0.8448407649993896,
+        profile: "ID NP-1157 · 61F · Family history",
+        payload: {
+          "MDVP:Fo(Hz)": 154.003,
+          "MDVP:Fhi(Hz)": 160.267,
+          "MDVP:Flo(Hz)": 128.621,
+          "MDVP:Jitter(%)": 0.00183,
+          "MDVP:Jitter(Abs)": 0.00001,
+          "MDVP:RAP": 0.00076,
+          "MDVP:PPQ": 0.001,
+          "Jitter:DDP": 0.00229,
+          "MDVP:Shimmer": 0.0103,
+          "MDVP:Shimmer(dB)": 0.094,
+          "Shimmer:APQ3": 0.00469,
+          "Shimmer:APQ5": 0.00582,
+          "MDVP:APQ": 0.00871,
+          "Shimmer:DDA": 0.01406,
+          "NHR": 0.00243,
+          "HNR": 28.409,
+          "RPDE": 0.263654,
+          "DFA": 0.691483,
+          "spread1": -7.111576,
+          "spread2": 0.14478,
+          "D2": 2.065477,
+          "PPE": 0.093193
+        }
+      },
+      {
+        name: "Sample 6 (86%)",
+        confidence: 0.8572372198104858,
+        profile: "ID NP-1183 · 72M · Medication review",
+        payload: {
+          "MDVP:Fo(Hz)": 98.804,
+          "MDVP:Fhi(Hz)": 102.305,
+          "MDVP:Flo(Hz)": 87.804,
+          "MDVP:Jitter(%)": 0.00432,
+          "MDVP:Jitter(Abs)": 0.00004,
+          "MDVP:RAP": 0.00247,
+          "MDVP:PPQ": 0.00258,
+          "Jitter:DDP": 0.00742,
+          "MDVP:Shimmer": 0.02223,
+          "MDVP:Shimmer(dB)": 0.202,
+          "Shimmer:APQ3": 0.01277,
+          "Shimmer:APQ5": 0.01343,
+          "MDVP:APQ": 0.01552,
+          "Shimmer:DDA": 0.03831,
+          "NHR": 0.00882,
+          "HNR": 22.244,
+          "RPDE": 0.576644,
+          "DFA": 0.772416,
+          "spread1": -6.025367,
+          "spread2": 0.078202,
+          "D2": 2.053601,
+          "PPE": 0.177275
+        }
+      },
+      {
+        name: "Sample 7 (87%)",
+        confidence: 0.8725418448448181,
+        profile: "ID NP-1216 · 55F · Clinical trial",
+        payload: {
+          "MDVP:Fo(Hz)": 117.226,
+          "MDVP:Fhi(Hz)": 123.925,
+          "MDVP:Flo(Hz)": 106.656,
+          "MDVP:Jitter(%)": 0.00417,
+          "MDVP:Jitter(Abs)": 0.00004,
+          "MDVP:RAP": 0.00186,
+          "MDVP:PPQ": 0.0027,
+          "Jitter:DDP": 0.00558,
+          "MDVP:Shimmer": 0.01909,
+          "MDVP:Shimmer(dB)": 0.171,
+          "Shimmer:APQ3": 0.00864,
+          "Shimmer:APQ5": 0.01223,
+          "MDVP:APQ": 0.01949,
+          "Shimmer:DDA": 0.02592,
+          "NHR": 0.00955,
+          "HNR": 23.079,
+          "RPDE": 0.603515,
+          "DFA": 0.669565,
+          "spread1": -5.61907,
+          "spread2": 0.191576,
+          "D2": 2.027228,
+          "PPE": 0.215724
+        }
+      },
+      {
+        name: "Sample 8 (90%)",
+        confidence: 0.9002735614776611,
+        profile: "ID NP-1264 · 68M · Risk assessment",
+        payload: {
+          "MDVP:Fo(Hz)": 126.344,
+          "MDVP:Fhi(Hz)": 134.231,
+          "MDVP:Flo(Hz)": 112.773,
+          "MDVP:Jitter(%)": 0.00448,
+          "MDVP:Jitter(Abs)": 0.00004,
+          "MDVP:RAP": 0.00131,
+          "MDVP:PPQ": 0.00169,
+          "Jitter:DDP": 0.00393,
+          "MDVP:Shimmer": 0.02033,
+          "MDVP:Shimmer(dB)": 0.185,
+          "Shimmer:APQ3": 0.01143,
+          "Shimmer:APQ5": 0.00959,
+          "MDVP:APQ": 0.01614,
+          "Shimmer:DDA": 0.03429,
+          "NHR": 0.00474,
+          "HNR": 25.03,
+          "RPDE": 0.507504,
+          "DFA": 0.760361,
+          "spread1": -6.689151,
+          "spread2": 0.291954,
+          "D2": 2.431854,
+          "PPE": 0.105993
+        }
+      },
+      {
+        name: "Sample 9 (94%)",
+        confidence: 0.940826416015625,
+        profile: "ID NP-1291 · 60F · Specialist referral",
+        payload: {
+          "MDVP:Fo(Hz)": 155.078,
+          "MDVP:Fhi(Hz)": 163.736,
+          "MDVP:Flo(Hz)": 144.148,
+          "MDVP:Jitter(%)": 0.00168,
+          "MDVP:Jitter(Abs)": 0.00001,
+          "MDVP:RAP": 0.00068,
+          "MDVP:PPQ": 0.00092,
+          "Jitter:DDP": 0.00204,
+          "MDVP:Shimmer": 0.01064,
+          "MDVP:Shimmer(dB)": 0.097,
+          "Shimmer:APQ3": 0.00522,
+          "Shimmer:APQ5": 0.00632,
+          "MDVP:APQ": 0.00928,
+          "Shimmer:DDA": 0.01567,
+          "NHR": 0.00233,
+          "HNR": 29.746,
+          "RPDE": 0.334171,
+          "DFA": 0.67793,
+          "spread1": -6.981201,
+          "spread2": 0.18455,
+          "D2": 2.129924,
+          "PPE": 0.106802
+        }
+      },
+      {
+        name: "Sample 10 (97%)",
+        confidence: 0.9697802662849426,
+        profile: "ID NP-1312 · 73M · Progressive symptoms",
+        payload: {
+          "MDVP:Fo(Hz)": 150.258,
+          "MDVP:Fhi(Hz)": 154.609,
+          "MDVP:Flo(Hz)": 75.349,
+          "MDVP:Jitter(%)": 0.00248,
+          "MDVP:Jitter(Abs)": 0.00002,
+          "MDVP:RAP": 0.00105,
+          "MDVP:PPQ": 0.00136,
+          "Jitter:DDP": 0.00315,
+          "MDVP:Shimmer": 0.01131,
+          "MDVP:Shimmer(dB)": 0.107,
+          "Shimmer:APQ3": 0.00522,
+          "Shimmer:APQ5": 0.00659,
+          "MDVP:APQ": 0.01009,
+          "Shimmer:DDA": 0.01567,
+          "NHR": 0.00495,
+          "HNR": 26.759,
+          "RPDE": 0.296888,
+          "DFA": 0.722356,
+          "spread1": -6.878393,
+          "spread2": 0.089267,
+          "D2": 2.004055,
+          "PPE": 0.113942
+        }
+      }
+    ];
+
+    function getToken() {
+      return localStorage.getItem("np_token");
+    }
+
+    function setAuthMessage(text, ok) {
+      authMessage.textContent = text;
+      authMessage.style.color = ok ? "#0f766e" : "#b42318";
+    }
+
+    function setApiStatus(text, ok) {
+      apiStatus.textContent = text;
+      apiStatus.style.background = ok ? "#e7f6f2" : "#ffe9e9";
+      apiStatus.style.color = ok ? "#0f766e" : "#b42318";
+    }
+
+    function renderFields() {
+      predictionForm.innerHTML = "";
+      featureList.forEach((feature) => {
+        const field = document.createElement("div");
+        field.className = "field";
+        field.innerHTML = `
+          <label>${feature}</label>
+          <input type="number" step="any" data-feature="${feature}" placeholder="" required />
+        `;
+        predictionForm.appendChild(field);
+      });
+    }
+
+    function renderSampleOptions() {
+      sampleOptions.innerHTML = "";
+      samplePayloads.forEach((sample) => {
+        const option = document.createElement("option");
+        option.value = sample.name;
+        sampleOptions.appendChild(option);
+      });
+    }
+
+    function getSelectedSample() {
+      const selected = samplePayloads.find((sample) => sample.name === sampleSelect.value);
+      return selected || samplePayloads[0];
+    }
+
+    async function checkApi() {
+      try {
+        const response = await fetch(`${window.location.origin}/api/health`);
+        if (!response.ok) throw new Error("health failed");
+        setApiStatus("API: Online", true);
+      } catch (err) {
+        setApiStatus("API: Offline", false);
+      }
+    }
+
+    async function handleAuth(action) {
+      const email = document.getElementById("authEmail").value.trim();
+      const password = document.getElementById("authPassword").value.trim();
+      if (!email || !password) {
+        setAuthMessage("Email and password required", false);
+        return;
+      }
+      try {
+        const response = await fetch(`${window.location.origin}/api/auth/${action}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+        const result = await response.json();
+        if (!response.ok || result.status !== "success") {
+          setAuthMessage(result.message || "Authentication failed", false);
+          return;
+        }
+        if (result.data?.token) {
+          localStorage.setItem("np_token", result.data.token);
+        }
+        setAuthMessage(result.message || "Authenticated", true);
+      } catch (err) {
+        setAuthMessage("API connection failed", false);
+      }
+    }
+
+    function updateResults(confidence, risk, prediction, version, timestamp) {
+      confidenceValue.textContent = `${Math.round(confidence * 100)}%`;
+      confidenceBar.style.width = `${Math.round(confidence * 100)}%`;
+      riskPill.textContent = risk;
+      riskPill.className = `pill ${risk}`;
+      if (prediction === 1) {
+        predictionLabel.textContent = "Likely Parkinsonian";
+      } else if (prediction === 0) {
+        predictionLabel.textContent = "Likely Healthy";
+      } else {
+        predictionLabel.textContent = "--";
+      }
+      modelVersion.textContent = version || "--";
+      predictionTime.textContent = timestamp ? new Date(timestamp).toLocaleString() : "--";
+      if (risk === "high") {
+        clinicalNote.textContent = "Recommend confirmatory exam and specialist follow-up.";
+      } else if (risk === "medium") {
+        clinicalNote.textContent = "Recommend monitoring and repeat screening in 3-6 months.";
+      } else {
+        clinicalNote.textContent = "Routine monitoring recommended; no immediate action.";
+      }
+      if (risk === "high") {
+        riskMessage.textContent = "High risk detected. Immediate clinical validation recommended.";
+      } else if (risk === "medium") {
+        riskMessage.textContent = "Moderate risk detected. Follow-up screening advised.";
+      } else {
+        riskMessage.textContent = "Low risk detected. Continue monitoring as needed.";
+      }
+    }
+
+    function updateSampleMeta(sample) {
+      if (!sample) {
+        sampleMeta.textContent = "Profile: --";
+        sampleHint.textContent = "Expected confidence ~ --";
+        return;
+      }
+      sampleMeta.textContent = `Profile: ${sample.profile}`;
+      sampleHint.textContent = `Expected confidence ~ ${Math.round(sample.confidence * 100)}%`;
+    }
+
+    document.getElementById("loginBtn").addEventListener("click", () => handleAuth("login"));
+    document.getElementById("registerBtn").addEventListener("click", () => handleAuth("register"));
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      localStorage.removeItem("np_token");
+      setAuthMessage("Logged out", true);
+    });
+
+    document.getElementById("sampleBtn").addEventListener("click", () => {
+      const sample = getSelectedSample();
+      document.querySelectorAll("[data-feature]").forEach((input) => {
+        const feature = input.getAttribute("data-feature");
+        if (sample.payload[feature] !== undefined) {
+          input.value = sample.payload[feature];
+        }
+      });
+      updateSampleMeta(sample);
+      formStatus.textContent = "Sample loaded.";
+    });
+
+    sampleSelect.addEventListener("input", () => {
+      updateSampleMeta(getSelectedSample());
+    });
+
+    predictionForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const token = getToken();
+      if (!token) {
+        setAuthMessage("Please login before predicting", false);
+        return;
+      }
+      const payload = {};
+      document.querySelectorAll("[data-feature]").forEach((input) => {
+        payload[input.getAttribute("data-feature")] = Number(input.value);
+      });
+      formStatus.textContent = "Submitting prediction...";
+      try {
+        const response = await fetch(`${window.location.origin}/api/predict`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (!response.ok || result.status !== "success") {
+          throw new Error(result.message || "Prediction failed");
+        }
+        updateResults(
+          result.data.confidence || 0,
+          result.data.risk_level || "low",
+          result.data.prediction,
+          result.data.model_version,
+          result.data.timestamp
+        );
+        formStatus.textContent = "Prediction completed.";
+      } catch (err) {
+        formStatus.textContent = err.message || "Prediction failed.";
+      }
+    });
+
+    renderFields();
+    renderSampleOptions();
+    updateSampleMeta(samplePayloads[0]);
+    checkApi();
+    if (getToken()) {
+      setAuthMessage("Authenticated", true);
+    }
+  </script>
+</body>
+</html>

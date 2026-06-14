@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NeuroPredict AI | Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f6f9fc;
+      --bg-accent: #eef5ff;
+      --card: #ffffff;
+      --text: #0f1f2d;
+      --muted: #4f6375;
+      --primary: #1b7cff;
+      --accent: #14b8a6;
+      --border: rgba(15, 31, 45, 0.08);
+      --shadow: 0 20px 50px rgba(15, 31, 45, 0.08);
+      --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: "Space Grotesk", "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      background: linear-gradient(180deg, #ffffff 0%, var(--bg) 40%, var(--bg-accent) 100%);
+      color: var(--text);
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .page {
+      padding: 28px 7vw 64px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .nav-links a.active {
+      color: var(--text);
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 4px;
+    }
+
+    .header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: clamp(2rem, 3vw, 2.8rem);
+    }
+
+    .header p { margin: 0; color: var(--muted); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h3 { margin: 0 0 8px; }
+
+    .stat {
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+
+    .mono { font-family: var(--mono); color: var(--muted); font-size: 0.85rem; }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    .table th,
+    .table td {
+      text-align: left;
+      padding: 12px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .pill.low { background: #e7f6f2; color: #0f766e; }
+    .pill.medium { background: #fff7e8; color: #b25f00; }
+    .pill.high { background: #ffe9e9; color: #b42318; }
+
+    .cta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 22px;
+      border-radius: 16px;
+      background: linear-gradient(120deg, #e7f3ff, #f3fffd);
+      border: 1px solid var(--border);
+    }
+
+    .button {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--primary);
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <nav class="nav">
+      <strong>NeuroPredict AI</strong>
+      <div class="nav-links">
+        <a href="/">Landing</a>
+        <a class="active" href="/dashboard">Dashboard</a>
+        <a href="/prediction">Prediction</a>
+      </div>
+    </nav>
+
+    <section class="header">
+      <h1>Model Performance Dashboard</h1>
+      <p>Live metrics and recent predictions for the active clinical model.</p>
+      <span class="mono" id="apiStatus">API: Checking...</span>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h3>Accuracy</h3>
+        <div class="stat" id="metricAccuracy">--</div>
+        <div class="mono">From model metadata</div>
+      </div>
+      <div class="card">
+        <h3>Precision</h3>
+        <div class="stat" id="metricPrecision">--</div>
+        <div class="mono">Positive class confidence</div>
+      </div>
+      <div class="card">
+        <h3>Recall</h3>
+        <div class="stat" id="metricRecall">--</div>
+        <div class="mono">Sensitivity of detection</div>
+      </div>
+      <div class="card">
+        <h3>Model Version</h3>
+        <div class="stat" id="metricVersion">--</div>
+        <div class="mono">Production deployment</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>Recent Predictions</h3>
+      <p class="mono" id="historyHint">Login required to load history.</p>
+      <div style="overflow-x:auto;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Record</th>
+              <th>Confidence</th>
+              <th>Risk</th>
+              <th>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody id="historyRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="cta">
+      <div>
+        <strong>Need to run a new prediction?</strong>
+        <div class="mono">Authenticate and submit patient parameters in seconds.</div>
+      </div>
+      <a class="button" href="/prediction">Go to Prediction</a>
+    </section>
+  </div>
+
+  <script>
+    const apiStatus = document.getElementById("apiStatus");
+    const metricAccuracy = document.getElementById("metricAccuracy");
+    const metricPrecision = document.getElementById("metricPrecision");
+    const metricRecall = document.getElementById("metricRecall");
+    const metricVersion = document.getElementById("metricVersion");
+    const historyRows = document.getElementById("historyRows");
+    const historyHint = document.getElementById("historyHint");
+
+    function formatPercent(value) {
+      return Number.isFinite(value) ? `${Math.round(value * 100)}%` : "--";
+    }
+
+    function getToken() {
+      return localStorage.getItem("np_token");
+    }
+
+    async function loadModelInfo() {
+      try {
+        const response = await fetch(`${window.location.origin}/api/model-info`);
+        if (!response.ok) throw new Error("model info failed");
+        const result = await response.json();
+        const metrics = result.data?.metrics || {};
+        metricAccuracy.textContent = formatPercent(metrics.accuracy || 0);
+        metricPrecision.textContent = formatPercent(metrics.precision || 0);
+        metricRecall.textContent = formatPercent(metrics.recall || 0);
+        metricVersion.textContent = result.data?.model_version || "--";
+      } catch (err) {
+        metricAccuracy.textContent = "--";
+        metricPrecision.textContent = "--";
+        metricRecall.textContent = "--";
+        metricVersion.textContent = "--";
+      }
+    }
+
+    async function loadHistory() {
+      const token = getToken();
+      if (!token) {
+        historyHint.textContent = "Login required to load history.";
+        return;
+      }
+      try {
+        historyHint.textContent = "Loading history...";
+        const response = await fetch(`${window.location.origin}/api/prediction-history`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const result = await response.json();
+        if (!response.ok || result.status !== "success") {
+          throw new Error("history failed");
+        }
+        historyRows.innerHTML = "";
+        (result.data || []).slice(0, 8).forEach((item, index) => {
+          const row = document.createElement("tr");
+          const risk = item.risk_level || "unknown";
+          row.innerHTML = `
+            <td>#NP-${String(index + 1).padStart(4, "0")}</td>
+            <td>${formatPercent(item.confidence || 0)}</td>
+            <td><span class="pill ${risk}">${risk}</span></td>
+            <td class="mono">${new Date(item.created_at).toLocaleString()}</td>
+          `;
+          historyRows.appendChild(row);
+        });
+        historyHint.textContent = result.data?.length ? "" : "No predictions yet.";
+      } catch (err) {
+        historyHint.textContent = "Unable to load history.";
+      }
+    }
+
+    async function checkApi() {
+      try {
+        const response = await fetch(`${window.location.origin}/api/health`);
+        if (!response.ok) throw new Error("health failed");
+        apiStatus.textContent = "API: Online";
+      } catch (err) {
+        apiStatus.textContent = "API: Offline";
+      }
+    }
+
+    checkApi();
+    loadModelInfo();
+    loadHistory();
+  </script>
+</body>
+</html>
